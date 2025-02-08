@@ -6,42 +6,61 @@ import { ShopPresenter } from './components/Presenter';
 import { BasketItemView } from './components/view/BasketItemView';
 import { BasketView } from './components/view/BasketView';
 import { ModalView } from './components/view/ModalView';
-import { PageView } from './components/view/PageView';
+import { CatalogView } from './components/view/CatalogView';
 import { ProductPreview } from './components/view/ProdactPreview';
 import { ProductView } from './components/view/ProductView';
 import './scss/styles.scss';
 import { IProduct } from './types';
 import { API_URL } from './utils/constants';
+import { PaymentView } from './components/view/PaymentView';
+import { OrderModel } from './components/models/OrderModel';
+import { ContactsView } from './components/view/ContactsView';
+import { SuccessView } from './components/view/SuccesView';
 
+const api = new Api(API_URL);
 
-const api = new Api(API_URL)
-
-const events = new EventEmitter()
+const events = new EventEmitter();
 const catalogModel = new CatalogModel(events);
 const basketModel = new BasketModel(events);
+const orderModel = new OrderModel(events);
 
-const modalTemplate = document.querySelector('#modal-container') as HTMLElement; 
-const modal = new ModalView(modalTemplate)
+const modalTemplate = document.querySelector('#modal-container') as HTMLElement;
+const modal = new ModalView(modalTemplate);
 
-const page = new PageView(document.querySelector('.page') as HTMLElement);
+const page = new CatalogView(document.querySelector('.page') as HTMLElement);
 
+api
+	.get('/product')
+	.then((data: ApiListResponse<IProduct>) => {
+		catalogModel.set_Items(data.items);
+	})
+	.catch((err) => console.log(err));
 
-api.get('/product')
-    .then((data: ApiListResponse<IProduct>)=> {
-        catalogModel.set_Items(data.items)
-    })
-    .catch(err => console.log(err))
-
-const presenter = new ShopPresenter(catalogModel, basketModel, ProductView, page, BasketView, ProductPreview, modal, BasketItemView)
+const presenter = new ShopPresenter(
+	catalogModel,
+	basketModel,
+	orderModel,
+	ProductView,
+	page,
+	BasketView,
+	ProductPreview,
+	modal,
+	BasketItemView,
+	PaymentView,
+	ContactsView,
+	SuccessView
+);
 
 presenter.init();
-presenter.renderView();
-
 
 events.on('items:changed', () => {
-    presenter.renderView();
-})
+	presenter.renderCatalogView();
+});
 
 events.on('basket:changed', () => {
-    presenter.renderView();
-})
+	presenter.renderBasketView();
+});
+
+events.on('order:changed', () => {
+	presenter.renderBasketView();
+});

@@ -1,26 +1,26 @@
-import { IModal } from "../../types";
+import { IModal } from '../../types';
 
 export class ModalView implements IModal {
-  protected closeButton: HTMLButtonElement;
-  protected _content: HTMLElement;
+	protected _content: HTMLElement;
 
-  constructor(protected container: HTMLElement) {
-    this.closeButton = container.querySelector('.modal__close')
-    this._content = container.querySelector('.modal__content')
-    this.closeButton.addEventListener('click', this.close.bind(this))
-  }
+	constructor(protected container: HTMLElement) {
+		this._content = container.querySelector('.modal__content');
+		this.container.addEventListener('click', (evt) => {
+			const target = evt.target as HTMLElement;
+			if (target.matches('.modal__close')) this.close();
+		});
+	}
 
-  set content(value: HTMLElement) {
-    this._content.replaceChildren(value);
-  }
+	set content(value: HTMLElement) {
+		this._content.replaceChildren(value);
+	}
 
-  open() {
-    this.container.classList.add('modal_active')
-  }
+	open() {
+		this.container.classList.add('modal_active');
+	}
 
-  close() {
-    this.container.classList.remove('modal_active')
-    this.content = null
-  }
-
+	close() {
+		this.container.classList.remove('modal_active');
+		this.content = null;
+	}
 }
