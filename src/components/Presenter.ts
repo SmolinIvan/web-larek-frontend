@@ -11,6 +11,7 @@ import {
 	IContactsView,
 	ISuccessView,
 } from '../types';
+import { checkInputValidity, clearValidation, enableValidation } from './base/Validation';
 import { BasketModel } from './models/BasketModel';
 import { CatalogModel } from './models/CatalogModel';
 import { OrderModel } from './models/OrderModel';
@@ -20,7 +21,7 @@ import { ContactsViewConstructor } from './view/ContactsView';
 import { PaymentViewConstructor } from './view/PaymentView';
 import { ProductPreviewConstructor } from './view/ProdactPreview';
 import { IProductConstructor } from './view/ProductView';
-import { SuccessViewConstructor } from './view/SuccesView';
+import { SuccessViewConstructor } from './view/SuccessView';
 
 export class ShopPresenter {
 	protected cardTemplate: HTMLTemplateElement;
@@ -69,9 +70,6 @@ export class ShopPresenter {
 		this.basketButton = document.querySelector(
 			'.header__basket'
 		) as HTMLButtonElement;
-		this.basketCounter = this.basketButton.querySelector(
-			'.header__basket-counter'
-		);
 		this.paymentTemplate = document.querySelector(
 			'#order'
 		) as HTMLTemplateElement;
@@ -94,11 +92,8 @@ export class ShopPresenter {
 		this.paymentView = new this.paymentViewConstructor(this.paymentTemplate);
 		this.contactsView = new this.contactsViewConstructor(this.contactsTemplate);
 		this.successView = new this.successViewConstructor(this.successTemplate);
-		this.basketButton.addEventListener(
-			'click',
-			this.handleOpenBasketView.bind(this)
-		);
-		this.basketCounter.textContent = '0';
+		this.viewPageContainer.setBasketButtonHandler(this.handleOpenBasketView.bind(this))
+		
 	}
 
 	handleBuyProduct(id: string, item: BasketItem) {
@@ -151,11 +146,21 @@ export class ShopPresenter {
 		// надо навесить валидацию
 		this.paymentView.setCardOptionHandler(
 			this.handleMakeOnlineOption.bind(this)
+
 		);
+		
 		this.paymentView.setCashOptionHandler(this.handleMakeCashOption.bind(this));
+
+		// доделать
+		clearValidation(this.paymentView.render(), '.form__input');
+		enableValidation(this.paymentView.render(), '.form__input', this.paymentView.submitButton)
+
+		
 		this.paymentView.setSubmitOrderHandler(this.handleSubmitOrder.bind(this));
 		this.modal.content = this.paymentView.render();
 	}
+
+	// validateForm = enableValidation
 
 	handleMakeOnlineOption() {
 		this.orderModel.orderData.payment = 'online';
@@ -193,6 +198,7 @@ export class ShopPresenter {
 		});
 
 		this.viewPageContainer.products = productList;
+		// this.viewPageContainer.setProductCounter((this.basketModel.getItems()).length)
 	}
 
 	renderBasketView() {
@@ -212,6 +218,12 @@ export class ShopPresenter {
 			return itemElement;
 		});
 		this.basketView.content = basketList;
-		this.basketCounter.textContent = `${this.basketModel.items.size}`;
+		
+		this.viewPageContainer.setProductCounter(indexCount)
+
+		// вернуть
+		// this.basketView.setDisabled(this.basketView.makeOrderButton, indexCount === 0)
+
+		// this.basketCounter.textContent = `${this.basketModel.items.size}`;
 	}
 }

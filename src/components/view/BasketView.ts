@@ -1,20 +1,24 @@
 import { IBasketView } from '../../types';
+import { Component } from '../base/component';
 
 export interface BasketViewConstructor {
 	new (basketViewTemplate: HTMLTemplateElement): IBasketView;
 }
 
-export class BasketView implements IBasketView {
+export class BasketView extends Component<IBasketView> {
 	protected basketElement: HTMLElement;
 	protected priceElement: HTMLElement;
 	protected handleMakeOrder: Function;
 	protected _content: HTMLElement;
-	protected makeOrderButton: HTMLButtonElement; // кнопка "Оформить"
+	protected kek: HTMLElement
+	makeOrderButton: HTMLButtonElement; // кнопка "Оформить"
 
 	constructor(basketViewTemplate: HTMLTemplateElement) {
+		super(document.querySelector('.basket')) // необходимо исправить
 		this.basketElement = basketViewTemplate.content
 			.querySelector('.basket')
 			.cloneNode(true) as HTMLElement;
+		// this.basketElement = this.container;
 		this.priceElement = this.basketElement.querySelector('.basket__price');
 		this._content = this.basketElement.querySelector('.basket__list');
 		this.makeOrderButton = this.basketElement.querySelector('.basket__button');

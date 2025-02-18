@@ -8,10 +8,12 @@ export class PaymentView implements IPaymentView {
 	protected orderElement: HTMLFormElement;
 	protected onlineButton: HTMLButtonElement;
 	protected offlineButton: HTMLButtonElement;
-	protected addressInput: HTMLInputElement;
+	addressInput: HTMLInputElement;
+	submitButton: HTMLButtonElement;
 	protected handleOnlineMethod: Function;
 	protected handleOfflineMethod: Function;
 	protected handleSubmitAddress: Function;
+	protected handleValidate:Function;
 
 	constructor(orderTemplate: HTMLTemplateElement) {
 		this.orderElement = orderTemplate.content
@@ -21,6 +23,9 @@ export class PaymentView implements IPaymentView {
 		this.offlineButton = this.orderElement.querySelector('button[name="cash"]');
 		this.addressInput = this.orderElement.querySelector(
 			'input[name="address"]'
+		);
+		this.submitButton = this.orderElement.querySelector(
+			'button[type="submit"]'
 		);
 	}
 
@@ -46,6 +51,13 @@ export class PaymentView implements IPaymentView {
 		});
 	}
 
+	setValidationHandle(handleValidate: Function) {
+		this.handleValidate = handleValidate;
+		this.orderElement.addEventListener('submit', (evt) => {
+			this.handleSubmitAddress(this);
+		});
+	}
+
 	getAddress() {
 		return this.addressInput.value;
 	}
@@ -54,7 +66,6 @@ export class PaymentView implements IPaymentView {
 		const button = this.orderElement.querySelector(
 			'.order__button'
 		) as HTMLButtonElement;
-		button.disabled = false;
 		return this.orderElement;
 	}
 }

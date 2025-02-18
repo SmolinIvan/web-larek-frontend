@@ -9,6 +9,10 @@ export interface IProduct {
 
 export interface ICatalogView {
 	products: HTMLElement[];
+	basketButton: HTMLButtonElement;
+	setProductCounter(productsCount: number): void;
+	setDisabled(element: HTMLElement, state: boolean): void;
+	setBasketButtonHandler(handleBasketOpen: Function): void;
 	render(): HTMLElement;
 }
 
@@ -47,15 +51,20 @@ export interface IBasketItemView {
 export interface IBasketView {
 	content: HTMLElement[];
 	price: number;
+	makeOrderButton: HTMLButtonElement;
+	setDisabled(element: HTMLElement, state: boolean): void;
 	setHandler(handleMakeOrder: Function): void;
 	render(): HTMLElement;
 }
 
 export interface IPaymentView {
+	submitButton: HTMLButtonElement;
+	addressInput: HTMLInputElement;
 	getAddress(): string;
 	setCardOptionHandler(handleOnlineMethod: Function): void;
 	setCashOptionHandler(handleOfflineMethod: Function): void;
 	setSubmitOrderHandler(handleSubmitAddress: Function): void;
+	setValidationHandle(handleValidate: Function): void;
 	render(): HTMLFormElement;
 }
 
