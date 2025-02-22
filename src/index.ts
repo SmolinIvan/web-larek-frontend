@@ -25,7 +25,7 @@ const basketModel = new BasketModel(events);
 const orderModel = new OrderModel(events);
 
 const modalTemplate = document.querySelector('#modal-container') as HTMLElement;
-const modal = new ModalView(modalTemplate);
+const modal = new ModalView(modalTemplate, events);
 
 const page = new PageView();
 
@@ -65,4 +65,14 @@ events.on('basket:changed', () => {
 
 events.on('order:changed', () => {
 	presenter.renderBasketView();
+});
+
+events.on('modal:open',() => {
+	page.locked = true;
+		// page.lockPage();
+});
+
+events.on('modal:close',() => {
+	page.locked = false;
+	// page.unlockPage();
 });

@@ -1,21 +1,27 @@
 import { IContactsView } from '../../types';
+import { Component } from '../base/component';
 
 export interface ContactsViewConstructor {
 	new (contactsViewTemplate: HTMLTemplateElement): ContactsView;
 }
 
-export class ContactsView implements IContactsView {
+export class ContactsView extends Component<IContactsView> {
 	protected contactsElement: HTMLFormElement;
 	protected emailInput: HTMLInputElement;
 	protected phoneInput: HTMLInputElement;
 	protected handleSubmitOrder: Function;
+	submitButton: HTMLButtonElement;
 
 	constructor(contactsTemplate: HTMLTemplateElement) {
+		super(contactsTemplate)
 		this.contactsElement = contactsTemplate.content
 			.querySelector('.form')
 			.cloneNode(true) as HTMLFormElement;
 		this.emailInput = this.contactsElement.querySelector('input[name="email"]');
 		this.phoneInput = this.contactsElement.querySelector('input[name="phone"]');
+		this.submitButton = this.contactsElement.querySelector(
+			'button[type="submit"]'
+		);
 	}
 
 	getEmail() {

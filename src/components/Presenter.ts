@@ -114,6 +114,7 @@ export class ShopPresenter {
 			id: productPre.id,
 		};
 
+		this.viewPageContainer.locked = true
 		this.previewProduct.data = product.data;
 		this.previewProduct.setHandler(() =>
 			this.handleBuyProduct(product.data.id, basketItemData)
@@ -144,11 +145,7 @@ export class ShopPresenter {
 
 	handleOpenPayment() {
 		// надо навесить валидацию
-		this.paymentView.setCardOptionHandler(
-			this.handleMakeOnlineOption.bind(this)
-
-		);
-		
+		this.paymentView.setCardOptionHandler(this.handleMakeOnlineOption.bind(this));
 		this.paymentView.setCashOptionHandler(this.handleMakeCashOption.bind(this));
 
 		// доделать
@@ -156,24 +153,41 @@ export class ShopPresenter {
 		enableValidation(this.paymentView.render(), '.form__input', this.paymentView.submitButton)
 
 		
-		this.paymentView.setSubmitOrderHandler(this.handleSubmitOrder.bind(this));
+		this.paymentView.setSubmitHandler(this.handleSubmitOrder.bind(this));
+		console.log(this.orderModel.orderData.payment)
 		this.modal.content = this.paymentView.render();
+		console.log(this.orderModel)
 	}
 
 	// validateForm = enableValidation
 
 	handleMakeOnlineOption() {
+		this.paymentView.offlineButton.classList.remove('button_alt-active')
+		this.paymentView.offlineButton.classList.add('button_alt')
+		this.paymentView.onlineButton.classList.remove('button_alt')
+		this.paymentView.onlineButton.classList.add('button_alt-active')
 		this.orderModel.orderData.payment = 'online';
 	}
 
 	handleMakeCashOption() {
+		this.paymentView.onlineButton.classList.remove('button_alt-active')
+		this.paymentView.onlineButton.classList.add('button_alt')
+		this.paymentView.offlineButton.classList.remove('button_alt')
+		this.paymentView.offlineButton.classList.add('button_alt-active')
 		this.orderModel.payment = 'cash';
 	}
 
 	handleSubmitOrder() {
-		this.orderModel.address = this.paymentView.getAddress();
-		this.contactsView.setSubmitContacts(this.handleSubmitContacts.bind(this));
-		this.modal.content = this.contactsView.render();
+		if (this.orderModel.orderData.payment === 'not_selected') {
+			this.paymentView.render().querySelector('.form__errors').textContent = 'Не выбран способ оплаты'
+		} else {
+			this.orderModel.address = this.paymentView.getInputData(this.paymentView.addressInput);
+			this.contactsView.setSubmitContacts(this.handleSubmitContacts.bind(this));
+			this.modal.content = this.contactsView.render();
+			clearValidation(this.contactsView.render(), '.form__input');
+			enableValidation(this.contactsView.render(), '.form__input', this.contactsView.submitButton)
+			console.log(this.paymentView.getInputData(this.paymentView.addressInput))
+		}
 	}
 
 	handleSubmitContacts() {
@@ -186,6 +200,7 @@ export class ShopPresenter {
 		this.orderModel.clear();
 		this.basketModel.clear();
 		this.modal.content = this.successView.render();
+	
 	}
 
 	renderCatalogView() {

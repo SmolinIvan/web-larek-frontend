@@ -16,6 +16,7 @@ export function enableValidation(
       toggleButtonState(inputList, buttonElement);
     });
   });
+  toggleButtonState(inputList, buttonElement);
   // setState(formElement.querySelector('button[type="submit"]'))
 }
 
@@ -45,7 +46,7 @@ export function checkInputValidity(
 ) {
   if (inputElement.validity.patternMismatch) {
     inputElement.setCustomValidity(
-      "kekokek"
+      "Неверно заполнен email и/или телефон"
     );
   } else {
     inputElement.setCustomValidity("");

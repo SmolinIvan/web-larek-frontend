@@ -11,10 +11,10 @@ export class BasketView extends Component<IBasketView> {
 	protected handleMakeOrder: Function;
 	protected _content: HTMLElement;
 	protected kek: HTMLElement
-	makeOrderButton: HTMLButtonElement; // кнопка "Оформить"
+	makeOrderButton: HTMLButtonElement;
 
 	constructor(basketViewTemplate: HTMLTemplateElement) {
-		super(document.querySelector('.basket')) // необходимо исправить
+		super(basketViewTemplate)
 		this.basketElement = basketViewTemplate.content
 			.querySelector('.basket')
 			.cloneNode(true) as HTMLElement;

@@ -1,3 +1,5 @@
+import { Func } from "mocha";
+
 export interface IProduct {
 	category: string;
 	description: string;
@@ -9,6 +11,9 @@ export interface IProduct {
 
 export interface ICatalogView {
 	products: HTMLElement[];
+	locked: boolean;
+	// lockPage: Function;
+	// unlockPage: Function;
 	basketButton: HTMLButtonElement;
 	setProductCounter(productsCount: number): void;
 	setDisabled(element: HTMLElement, state: boolean): void;
@@ -58,17 +63,22 @@ export interface IBasketView {
 }
 
 export interface IPaymentView {
+	onlineButton: HTMLButtonElement;
+	offlineButton: HTMLButtonElement;
 	submitButton: HTMLButtonElement;
 	addressInput: HTMLInputElement;
-	getAddress(): string;
+	// getAddress(): string; // убрать
+	getInputData(input: HTMLInputElement): string
+	setSubmitHandler(handleSubmit: Function): void;
 	setCardOptionHandler(handleOnlineMethod: Function): void;
 	setCashOptionHandler(handleOfflineMethod: Function): void;
-	setSubmitOrderHandler(handleSubmitAddress: Function): void;
+	// setSubmitOrderHandler(handleSubmitAddress: Function): void;
 	setValidationHandle(handleValidate: Function): void;
 	render(): HTMLFormElement;
 }
 
 export interface IContactsView {
+	submitButton: HTMLButtonElement;
 	getEmail(): string;
 	getPhone(): string;
 	setSubmitContacts(handleSubmitContacts: Function): void;

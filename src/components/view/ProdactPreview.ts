@@ -1,11 +1,12 @@
 import { IProduct, IProductPreview } from '../../types';
 import { CDN_URL, classes } from '../../utils/constants';
+import { Component } from '../base/component';
 
 export interface ProductPreviewConstructor {
 	new (productPreviewTemplate: HTMLTemplateElement): IProductPreview;
 }
 
-export class ProductPreview implements IProductPreview {
+export class ProductPreview extends Component<IProductPreview> {
 	protected preview: HTMLElement;
 	protected buyButton: HTMLButtonElement;
 	protected handleBuyProduct: Function;
@@ -17,6 +18,7 @@ export class ProductPreview implements IProductPreview {
 	protected _data: IProduct;
 
 	constructor(productPreviewTemplate: HTMLTemplateElement) {
+		super(productPreviewTemplate)
 		this.preview = productPreviewTemplate.content
 			.querySelector('.card')
 			.cloneNode(true) as HTMLElement;
@@ -58,6 +60,11 @@ export class ProductPreview implements IProductPreview {
 		this.categoryElement.textContent = this.data.category;
 		this.categoryColor = this.data.category;
 		this.priceElement.textContent = `${this.data.price} синапсов`;
+		if (typeof this.data.price != 'number') {
+			this.setDisabled(this.buyButton, true)
+		} else {
+			this.setDisabled(this.buyButton, false)
+		}
 		this.titleElement.textContent = this.data.title;
 		this.imageElement.src = `${CDN_URL}/` + this.data.image;
 		return this.preview;

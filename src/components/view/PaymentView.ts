@@ -1,31 +1,27 @@
 import { IPaymentView } from '../../types';
+import { Form } from '../base/Form';
 
 export interface PaymentViewConstructor {
 	new (orderViewTemplate: HTMLTemplateElement): IPaymentView;
 }
 
-export class PaymentView implements IPaymentView {
+export class PaymentView extends Form<IPaymentView> {
 	protected orderElement: HTMLFormElement;
-	protected onlineButton: HTMLButtonElement;
-	protected offlineButton: HTMLButtonElement;
+	onlineButton: HTMLButtonElement;
+	offlineButton: HTMLButtonElement;
 	addressInput: HTMLInputElement;
-	submitButton: HTMLButtonElement;
+
 	protected handleOnlineMethod: Function;
 	protected handleOfflineMethod: Function;
 	protected handleSubmitAddress: Function;
 	protected handleValidate:Function;
 
 	constructor(orderTemplate: HTMLTemplateElement) {
-		this.orderElement = orderTemplate.content
-			.querySelector('.form')
-			.cloneNode(true) as HTMLFormElement;
-		this.onlineButton = this.orderElement.querySelector('button[name="card"]');
-		this.offlineButton = this.orderElement.querySelector('button[name="cash"]');
-		this.addressInput = this.orderElement.querySelector(
+		super(orderTemplate)
+		this.onlineButton = this.form.querySelector('button[name="card"]');
+		this.offlineButton = this.form.querySelector('button[name="cash"]');
+		this.addressInput = this.form.querySelector(
 			'input[name="address"]'
-		);
-		this.submitButton = this.orderElement.querySelector(
-			'button[type="submit"]'
 		);
 	}
 
@@ -43,29 +39,29 @@ export class PaymentView implements IPaymentView {
 		});
 	}
 
-	setSubmitOrderHandler(handleSubmitAddress: Function) {
-		this.handleSubmitAddress = handleSubmitAddress;
-		this.orderElement.addEventListener('submit', (evt) => {
-			evt.preventDefault();
-			this.handleSubmitAddress(this);
-		});
-	}
+	// setSubmitOrderHandler(handleSubmitAddress: Function) {
+	// 	this.handleSubmitAddress = handleSubmitAddress;
+	// 	this.form.addEventListener('submit', (evt) => {
+	// 		evt.preventDefault();
+	// 		this.handleSubmitAddress(this);
+	// 	});
+	// }
 
 	setValidationHandle(handleValidate: Function) {
 		this.handleValidate = handleValidate;
-		this.orderElement.addEventListener('submit', (evt) => {
+		this.form.addEventListener('submit', (evt) => {
 			this.handleSubmitAddress(this);
 		});
 	}
 
-	getAddress() {
-		return this.addressInput.value;
-	}
+	// getAddress() {
+	// 	return this.addressInput.value;
+	// }
 
-	render(): HTMLFormElement {
-		const button = this.orderElement.querySelector(
-			'.order__button'
-		) as HTMLButtonElement;
-		return this.orderElement;
-	}
+	// render(): HTMLFormElement {
+	// 	const button = this.form.querySelector(
+	// 		'.order__button'
+	// 	) as HTMLButtonElement;
+	// 	return this.form;
+	// }
 }

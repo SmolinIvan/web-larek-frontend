@@ -1,10 +1,11 @@
 import { BasketItem, IBasketItemView } from '../../types';
+import { Component } from '../base/component';
 
 export interface BasketItemConstructor {
 	new (template: HTMLTemplateElement): IBasketItemView;
 }
 
-export class BasketItemView implements IBasketItemView {
+export class BasketItemView extends Component<IBasketItemView> {
 	protected itemElement: HTMLElement;
 	protected _data: BasketItem;
 	protected itemTitle: HTMLElement;
@@ -14,6 +15,7 @@ export class BasketItemView implements IBasketItemView {
 	protected index: HTMLSpanElement;
 
 	constructor(template: HTMLTemplateElement) {
+		super(template)
 		this.itemElement = template.content
 			.querySelector('.card_compact')
 			.cloneNode(true) as HTMLElement;
