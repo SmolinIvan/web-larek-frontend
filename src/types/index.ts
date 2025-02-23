@@ -69,7 +69,6 @@ export interface IPaymentView {
 	setSubmitHandler(handleSubmit: Function): void;
 	setCardOptionHandler(handleOnlineMethod: Function): void;
 	setCashOptionHandler(handleOfflineMethod: Function): void;
-	setValidationHandle(handleValidate: Function): void;
 	uncheckPaymentMethod(): void;
 	clearInputs(): void;
 	render(): HTMLFormElement;

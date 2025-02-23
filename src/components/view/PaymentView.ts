@@ -43,10 +43,4 @@ export class PaymentView extends Form<IPaymentView> {
 		checkedButton.classList.add('button_alt');
 	}
 
-	setValidationHandle(handleValidate: Function) {
-		this.handleValidate = handleValidate;
-		this.form.addEventListener('submit', (evt) => {
-			this.handleSubmitAddress(this);
-		});
-	}
 }

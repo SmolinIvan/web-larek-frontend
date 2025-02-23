@@ -99,462 +99,243 @@ yarn build
 
 ### Отображения
 
-#### Класс CatalogView отвечает за отрисовку карточек на странице
+#### Класс PageView отвечает за отрисовку карточек на странице
 
-```typescript
-class CatalogView {
-	// свойства класса
-	protected productsContainer: HTMLElement;
+У класса есть следующие методы:
 
-	// в конструктор передаем контейнер, внутри которого будут отрисовываться карточки
-	constructor(container: HTMLElement) {
-		this.productsContainer = container.querySelector('.gallery');
-	}
+1. setProductCounter - устанавливает значение счетчика количества товаров в корзине
+2. setBasketButtonHandler - устанавливает слушатель события на кнопку корзины
+3. render - отрисовка страницы
 
-	//методы
+Поле products отвечает за установку содержимого на странице, а поле locked - за блокировку страницы
+PageView наследуется от базового класса Component и реализует интерфейс ICatalogView
 
-	//устанавливаем массив элементом который будет отрисован
-	set products(items: HTMLElement[]) {
-		this.productsContainer.replaceChildren(...items);
-	}
-
-	// отрисовываем контент
-	render() {
-		return this.productsContainer;
-	}
-}
-```
+---
 
 #### Класс ProductView - отображает карточку каталога. В карточке есть картинка, цена, название товара и категория
 
-```typescript
-class ProductView {
-	// свойства класса
-	protected itemElement: HTMLElement; // сам HTML элемент (карточка)
-	protected _data: IProduct; // данные карточки
-	protected itemTitle: HTMLElement; // Заголовок
-	protected categoryBlock: HTMLSpanElement; // категория
-	protected imageBlock: HTMLImageElement; // картинка
-	protected priceBlock: HTMLSpanElement; // цена
-	protected handleOpenModal: Function; // событие, которое будет происходить при нажатии на карточку (открытие модалки)
-	protected button: HTMLButtonElement; // кнопка карточки, вся карточка является кнопкой
+У класса есть свойства:
 
-	// в конструктор передаем шаблон
-	constructor(template: HTMLTemplateElement) {
-		this.itemElement = template.content
-			.querySelector('.gallery__item')
-			.cloneNode(true) as HTMLElement;
-		this.itemTitle = this.itemElement.querySelector('.card__title');
-		this.categoryBlock = this.itemElement.querySelector('.card__category');
-		this.imageBlock = this.itemElement.querySelector(
-			'.card__image'
-		) as HTMLImageElement;
-		this.priceBlock = this.itemElement.querySelector('.card__price');
-	}
+1. data - хранит данные о товаре (карточке)
+2. itemTitle,categoryBlock, imageBlock, priceBlock - элементы карточки, в свойства которых передаются определенные данные
+   Методы:
+3. setOpenModalHandler - метод, чтобы навесить необходимый слушатель события на карточку
+4. render - отрисовка карточки
 
-	// методы класса
+Класс реализует интерфейс IProductView
 
-	// сохраняем данные
-	set data(value: IProduct) {
-		this._data = value;
-	}
-
-	// получаем доступ к ним
-	get data() {
-		return this._data;
-	}
-
-	// устанавливаем слушатель события на кнопку
-	setOpenModalHandler(handleOpenModal: Function) {
-		this.handleOpenModal = handleOpenModal;
-		this.itemElement.addEventListener('click', (evt) => {
-			this.handleOpenModal(this);
-		});
-	}
-
-	// отрисовываем карточку
-	render() {
-		this.itemTitle.textContent = this.data.title;
-		this.priceBlock.textContent = `${this.data.price} синапсов`;
-		this.imageBlock.src = `${CDN_URL}/` + this.data.image;
-		this.categoryBlock.textContent = this.data.category;
-		this.categoryBlock.classList.remove('card__category_soft');
-		this.categoryBlock.classList.add(classes.get(this.data.category));
-		return this.itemElement;
-		return this.itemElement;
-	}
-}
-```
+---
 
 #### Класс ProductPreview - отображает более подробную информацию о товаре. Инфо о карточке отображается внутри модального окна ModalView
 
-```typescript
-class ProductPreview {
-	// свойства класса
-	protected preview: HTMLElement; // сам элемент, который будет отображаться внутри модального окна
-	protected buyButton: HTMLButtonElement; // кнопка для добавления товара
-	protected handleBuyProduct: Function; // событие, которое будет происходить при нажатии на кнопку
-	protected descriptionElement: HTMLSpanElement; // элемент с описанием карточки
-	protected titleElement: HTMLHeadingElement; // элемент с названием товара
-	protected priceElement: HTMLSpanElement; // цена
-	protected categoryElement: HTMLSpanElement; // категория
-	protected imageElement: HTMLImageElement; // картинка
-	protected _data: IProduct; // данные, необходимые для отрисовки превью продукта
+Свойства класса
 
-	// в конструктор класса передаем шаблон
-	constructor(productPreviewTemplate: HTMLTemplateElement) {
-		this.preview = productPreviewTemplate.content
-			.querySelector('.card')
-			.cloneNode(true) as HTMLElement;
-		this.categoryElement = this.preview.querySelector('.card__category');
-		this.descriptionElement = this.preview.querySelector('.card__text');
-		this.priceElement = this.preview.querySelector('.card__price');
-		this.titleElement = this.preview.querySelector('.card__title');
-		this.buyButton = this.preview.querySelector('button');
-		this.imageElement = this.preview.querySelector('.card__image');
-		this.buyButton.addEventListener('click', (evt) => {
-			this.handleBuyProduct(this);
-		});
-	}
+- preview: HTMLElement - основной элемент карточки товара
+- buyButton: HTMLButtonElement - кнопка для покупки
+- handleBuyProduct: Function - обработчик события покупки
+- descriptionElement: HTMLSpanElement - элемент для описания
+- titleElement: HTMLHeadingElement - элемент заголовка
+- priceElement: HTMLSpanElement - элемент цены
+- categoryElement: HTMLSpanElement - элемент категории
+- imageElement: HTMLImageElement - элемент изображения
+- \_data: IProduct - данные о товаре
 
-	// сохраняем данные
-	set data(data: IProduct) {
-		this._data = data;
-	}
+Конструктор (Инициализирует все элементы интерфейса):
 
-	// получаем доступ к данным
-	get data() {
-		return this._data;
-	}
+- Клонирует шаблон карточки
+- Находит все необходимые элементы по селекторам
+- Добавляет обработчик клика на кнопку покупки
 
-	// метод для установки нужного класса для элемента categoryElement
-	set categoryColor(value: string) {
-		const classNames = this.categoryElement.classList;
-		this.categoryElement.classList.remove(classNames.value.split(' ').pop());
-		this.categoryElement.textContent = value;
-		this.categoryElement.classList.add(classes.get(value));
-	}
+Геттеры/сеттеры:
 
-	// устанавливаем нужный текст в кнопке
-	set buttonText(value: string) {
-		this.buyButton.textContent = value;
-	}
+- data - для получения и установки данных о товаре
+- categoryColor - для установки цвета категории
+- buttonText - для установки текста на кнопке
 
-	// устанавливаем нужный слушатель события на кнопку
-	setHandler(handleBuyProduct: Function) {
-		this.handleBuyProduct = handleBuyProduct;
-	}
+Методы:
 
-	// отрисовываем превью карточки
-	render() {
-		this.categoryElement.textContent = this.data.category;
-		this.categoryColor = this.data.category;
-		this.priceElement.textContent = `${this.data.price} синапсов`;
-		this.titleElement.textContent = this.data.title;
-		this.imageElement.src = `${CDN_URL}/` + this.data.image;
-		return this.preview;
-	}
-}
-```
+- setHandler - устанавливает обработчик покупки
+- setDisabled - включает/отключает элемент
+- render - отрисовывает карточку товара с данными
 
-#### Класс BasketItemView - отображает добавленный товар, который можно удалить из корзины. Товары отрисовываются внутри корзины BasketView
+Особенности реализации:
 
-```typescript
-class BasketItemView {
-	protected itemElement: HTMLElement; // сам элемент
-	protected _data: BasketItem; // данные товара
-	protected itemTitle: HTMLElement; // элемент заголовка
-	protected priceBlock: HTMLSpanElement; // элемент с ценой
-	protected handleDeleteItem: Function; // событие происходящее при клике на кнопку удаления (удалить товар из корзины)
-	protected button: HTMLButtonElement; // кнопка удаления (Корзинка)
-	protected index: HTMLSpanElement; // элемент где будет отображаться номер товара в корзине
+- Защита данных: Использование приватного поля \_data и публичного геттера/сеттера data
+- Валидация цены: Проверка типа цены и блокировка кнопки при некорректном типе
+- Динамическая загрузка: Автоматическое добавление классов и установка URL изображения
+- Управление состоянием: Возможность включения/отключения элементов интерфейса
 
-	// в конструктор передаем шаблон
-	constructor(template: HTMLTemplateElement) {
-		this.itemElement = template.content
-			.querySelector('.card_compact')
-			.cloneNode(true) as HTMLElement;
-		this.itemTitle = this.itemElement.querySelector('.card__title');
-		this.priceBlock = this.itemElement.querySelector('.card__price');
-		this.index = this.itemElement.querySelector('.basket__item-index');
-		this.button = this.itemElement.querySelector('.basket__item-delete');
-	}
+---
 
-	// устанавливаем данные
-	set data(data: BasketItem) {
-		this._data = data;
-	}
+#### Класс BasketView представляет собой компонент корзины покупок, который отвечает за визуализацию и взаимодействие с пользовательским интерфейсом корзины.
 
-	// получаем к ним доступ
-	get data() {
-		return this._data;
-	}
+Свойства
 
-	// устанавливаем заголовок
-	set title(value: string) {
-		this.itemTitle.textContent = value;
-	}
+- basketElement: HTMLElement - корневой элемент корзины
+- priceElement: HTMLElement - элемент для отображения общей цены
+- handleMakeOrder: Function - обработчик оформления заказа
+- \_content: HTMLElement - контейнер для элементов корзины
+- makeOrderButton: HTMLButtonElement - кнопка оформления заказа
 
-	// устанавливаем порядковый номер
-	set indexNumber(value: string) {
-		this.index.textContent = `${value}`;
-	}
+Конструктор инициализирует компонент корзины на основе переданного шаблона.
 
-	// устанавливаем слушатель события на кнопку
-	setDeleteHandler(handleDeleteItem: Function) {
-		this.handleDeleteItem = handleDeleteItem;
-		this.button.addEventListener('click', (evt) => {
-			this.handleDeleteItem(this);
-		});
-	}
+Сеттеры:
 
-	// отрисовываем товар в корзине
-	render() {
-		this.itemTitle.textContent = this.data.name;
-		this.priceBlock.textContent = `${this.data.price}`;
-		return this.itemElement;
-	}
-}
-```
+- content - позволяет установить содержимое корзины, заменяя текущие элементы на новые
+- price - устанавливает текущую стоимость корзины в формате “цена синапсов”
+  Методы:
+- setDisabled - включает или отключает указанный элемент интерфейса
+- setHandler - устанавливает обработчик для кнопки оформления заказа
+- render - возвращает готовый к рендерингу корневой элемент корзины
+  Класс реализует интерфейс IBasketView и предоставляет полный функционал для работы с корзиной покупок: от отображения содержимого до оформления заказа. Все защищенные свойства предназначены для внутреннего использования и обеспечивают корректную работу интерфейса корзины.
 
-#### Класс BasketView - отображает все товары, которые находятся в корзине. Отсюда, при начале оформления оплаты, пользователь попадает на модальное окно с формой для заполнения данных для оплаты
+---
 
-```typescript
-class BasketView {
-	protected basketElement: HTMLElement; // сам элемент корзины
-	protected priceElement: HTMLElement; // элемент с ценой
-	protected handleMakeOrder: Function; // событие при оформлении заказа (клик на "Оформить")
-	protected _content: HTMLElement; // содержимое элемента корзины, сюда "Кладем" товары BasketItemView
-	protected makeOrderButton: HTMLButtonElement; // кнопка "Оформить"
+#### Класс BasketItemView представляет собой компонент для отображения отдельного товара в корзине покупок.
 
-	// в конструктор передаем товары
-	constructor(basketViewTemplate: HTMLTemplateElement) {
-		this.basketElement = basketViewTemplate.content
-			.querySelector('.basket')
-			.cloneNode(true) as HTMLElement;
-		this.priceElement = this.basketElement.querySelector('.basket__price');
-		this._content = this.basketElement.querySelector('.basket__list');
-	}
+Свойства
 
-	// в контент передаем жлементы, которые надо будет отрисовать (товары BasketItemView)
-	set content(items: HTMLElement[]) {
-		this._content.replaceChildren(...items);
-	}
+- itemElement - корневой элемент карточки товара
+- \_data - данные о товаре в корзине
+- itemTitle - элемент для отображения названия товара
+- priceBlock - элемент для отображения цены товара
+- handleDeleteItem - обработчик удаления товара
+- button - кнопка удаления товара
+- index - элемент для отображения порядкового номера товара
 
-	// установим итоговую сумму
-	set price(value: number) {
-		this.priceElement.textContent = `${value} синапсов`;
-	}
+Геттеры/Сеттеры
 
-	// событие при клике на оформить (переход к модальному окну с выбором способа оплаты)
-	setHandler(handleMakeOrder: Function): void {
-		this.handleMakeOrder = handleMakeOrder;
-		this.makeOrderButton.addEventListener('click', (evt) => {
-			this.handleMakeOrder(this);
-		});
-	}
+- data - получает/устанавливает данные о товаре
+- title - устанавливает название товара
+- indexNumber - устанавливает порядковый номер товара
 
-	// отрисовка элемента
-	render() {
-		return this.basketElement;
-	}
-}
-```
+Методы
 
-#### Класс ModalView - модальное окно, внутри которого отображаются другие компоненты (корзина, просмотр карточки, этапы оплаты, окно об успехе)
+- setDeleteHandler - устанавливает обработчик для удаления товара
+- render - визуализирует карточку товара
 
-```typescript
-class ModalView {
-	protected _content: HTMLElement; // содержимое модального окна
+Особенности
 
-	//в конструктор передаем элемент модального окна
-	constructor(protected container: HTMLElement) {
-		this._content = container.querySelector('.modal__content');
+- Класс реализует интерфейс IBasketItemView
+- Использует шаблонный подход для инициализации элементов интерфейса
+- Автоматически привязывает обработчик удаления товара
+- Поддерживает динамическое обновление данных о товаре
 
-		// на модальное окно устанавливаем слушатель -  событие (закрытие модального окна) должно срабатывать при клике на крестик или на область вне модального окна
-		this.container.addEventListener('click', (evt) => {
-			const target = evt.target as HTMLElement;
-			if (
-				target.matches('.modal__close') ||
-				!target.closest('.modal__container')
-			)
-				this.close();
-		});
-	}
+---
 
-	// устанавливаем содержимое внутри модального окна
-	set content(value: HTMLElement) {
-		this._content.replaceChildren(value);
-	}
+#### Класс ModalView представляет собой компонент для отображения модального окна. Наследует функциональность от базового класса Component.
 
-	// делаем модальное окно видимым
-	open() {
-		this.container.classList.add('modal_active');
-	}
+Свойства
 
-	// закрываем
-	close() {
-		this.container.classList.remove('modal_active');
-		this.content = null;
-	}
-}
-```
+- \_content - элемент для отображения содержимого модального окна
+- container (protected) - корневой элемент модального окна
+- events (protected) - система событий для взаимодействия
 
-#### Класс PaymentView - форма выбора способа оплаты и ввода адреса. Форма отображается внутри модального окна. При успешном заполнении формы пользователь попадает на следующее окно c формой для заполнения контактных данных (ContactsView)
+Сеттеры
 
-```typescript
-class PaymentView {
-	protected orderElement: HTMLFormElement; // элемент формы
-	protected onlineButton: HTMLButtonElement; // кнопка выбора онлайн оплаты
-	protected offlineButton: HTMLButtonElement; // кнопка выбора оплаты наличными
-	protected addressInput: HTMLInputElement; // поле ввода адреса
-	protected handleOnlineMethod: Function; // событие срабатывающее при выборе онлайн метода
-	protected handleOfflineMethod: Function; // событие срабатывающее при выборе метода оплаты наличными
-	protected handleSubmitAddress: Function; // событие при отправке формы
+- content - устанавливает содержимое модального окна
 
-	// в конструктор передаем шаблон формы
-	constructor(orderTemplate: HTMLTemplateElement) {
-		this.orderElement = orderTemplate.content
-			.querySelector('.form')
-			.cloneNode(true) as HTMLFormElement;
-		this.onlineButton = this.orderElement.querySelector('button[name="card"]');
-		this.offlineButton = this.orderElement.querySelector('button[name="cash"]');
-		this.addressInput = this.orderElement.querySelector(
-			'input[name="address"]'
-		);
-	}
+Методы
 
-	// установить событие на кнопку "Онлайн"
-	setCardOptionHandler(handleOnlineMethod: Function) {
-		this.handleOnlineMethod = handleOnlineMethod;
-		this.onlineButton.addEventListener('click', (evt) => {
-			this.handleOnlineMethod(this);
-		});
-	}
+- open() - открывает модальное окно
+- close() - закрывает модальное окно
+- clickOverlayModalHandle(event: MouseEvent) - обработчик клика по оверлею
 
-	// установить событие на кнопку "Наличными"
-	setCashOptionHandler(handleOfflineMethod: Function) {
-		this.handleOfflineMethod = handleOfflineMethod;
-		this.offlineButton.addEventListener('click', (evt) => {
-			this.handleOfflineMethod(this);
-		});
-	}
+Особенности
 
-	// Установить событие на отправку формы
-	setSubmitOrderHandler(handleSubmitAddress: Function) {
-		this.handleSubmitAddress = handleSubmitAddress;
-		this.orderElement.addEventListener('submit', (evt) => {
-			evt.preventDefault();
-			this.handleSubmitAddress(this);
-		});
-	}
+- Автоматически обрабатывает закрытие модального окна по клику на крестик
+- Поддерживает систему событий для уведомления об открытии/закрытии
+- Позволяет динамически менять содержимое окна
+- Имеет обработчик клика по оверлею для закрытия модального окна
 
-	// Получить адрес (значение поля для ввода адреса)
-	getAddress() {
-		return this.addressInput.value;
-	}
+Примечания
 
-	// отрисовать форму
-	render(): HTMLFormElement {
-		const button = this.orderElement.querySelector(
-			'.order__button'
-		) as HTMLButtonElement;
-		button.disabled = false;
-		return this.orderElement;
-	}
-}
-```
+- Все protected свойства предназначены для внутреннего использования
+- Класс использует делегирование событий для обработки клика на крестик
+- При закрытии модального окна содержимое очищается
 
-#### Класс ContactsView - форма добавления данных плательщика. При успешном заполнении данных, пользователь попадает на окно с уведомлением (SuccessView)
+---
 
-```typescript
-class ContactsView {
-	protected contactsElement: HTMLFormElement; // форма с контактными данными
-	protected emailInput: HTMLInputElement; // поле ввода email
-	protected phoneInput: HTMLInputElement; // поле ввода номера телефона
-	protected handleSubmitOrder: Function; // событие, срабатывающее при отправке формы
+#### Класс PaymentView представляет собой компонент формы для выбора способа оплаты и адреса доставки. Наследует функциональность от базового класса Form.
 
-	// в конструктор передаем шаблон формы
-	constructor(contactsTemplate: HTMLTemplateElement) {
-		this.contactsElement = contactsTemplate.content
-			.querySelector('.form')
-			.cloneNode(true) as HTMLFormElement;
-		this.emailInput = this.contactsElement.querySelector('input[name="email"]');
-		this.phoneInput = this.contactsElement.querySelector('input[name="phone"]');
-	}
+Свойства
 
-	// получить данные с поля ввода (email)
-	getEmail() {
-		return this.emailInput.value;
-	}
+- orderElement (protected) - корневой элемент формы заказа
+- onlineButton - кнопка выбора оплаты картой
+- offlineButton - кнопка выбора оплаты наличными
+- addressInput - поле ввода адреса
+- handleOnlineMethod (protected) - обработчик выбора оплаты картой
+- handleOfflineMethod (protected) - обработчик выбора оплаты наличными
+- handleSubmitAddress (protected) - обработчик отправки адреса
 
-	// получить данные с поля ввода (номер телефона)
-	getPhone() {
-		return this.phoneInput.value;
-	}
+Методы
 
-	// установить, которое будет срабатывать при отправке формы
-	setSubmitContacts(handleSubmitOrder: Function) {
-		this.handleSubmitOrder = handleSubmitOrder;
-		this.contactsElement.addEventListener('submit', (evt) => {
-			evt.preventDefault();
-			this.handleSubmitOrder(this);
-		});
-	}
+- setCardOptionHandler - устанавливает обработчик выбора оплаты картой
+- setCashOptionHandler - устанавливает обработчик выбора оплаты наличными
+- uncheckPaymentMethod - снимает отметку с выбранного способа оплаты
 
-	// отрисовать форму
-	render(): HTMLFormElement {
-		const button = this.contactsElement.querySelector(
-			'.button'
-		) as HTMLButtonElement;
-		button.disabled = false;
-		return this.contactsElement;
-	}
-}
-```
+Особенности
 
-#### Класс SuccessView - отображает окно с сообщением об успехе оформления заказа и стоимости заказа
+- Поддерживает два способа оплаты (картой и наличными)
+- Имеет поле для ввода адреса доставки
+- Позволяет устанавливать обработчики для различных действий пользователя
 
-```typescript
-class SuccessView {
-	protected successElement: HTMLElement; // окно об успехе
-	protected totalPriceElement: HTMLSpanElement; // элемент с информацией о цене заказа
-	protected _totalPrice: number; // стоимость заказа
+---
 
-	// в конструктор передаем шаблон окна
-	constructor(successTemplate: HTMLTemplateElement) {
-		this.successElement = successTemplate.content
-			.querySelector('.order-success')
-			.cloneNode(true) as HTMLElement;
-		this.totalPriceElement = this.successElement.querySelector(
-			'.order-success__description'
-		);
-		this.successElement
-			.querySelector('.button')
-			.addEventListener('click', (evt) => {
-				document
-					.querySelector('#modal-container')
-					.classList.remove('modal_active');
-			});
-	}
+#### Класс ContactsView представляет собой компонент формы для ввода контактных данных пользователя (email и телефон). Наследует функциональность от базового класса Form.
 
-	// установить цену заказа
-	set totalPrice(value: number) {
-		this._totalPrice = value;
-	}
+Свойства
 
-	// получить цену заказа
-	get totalPrice() {
-		return this._totalPrice;
-	}
+- contactsElement (protected) - корневой элемент формы контактов
+- emailInput - поле ввода email
+- phoneInput - поле ввода телефона
 
-	// отрисовать окно
-	render() {
-		this.totalPriceElement.textContent = `Списано ${this._totalPrice} синапсов`;
-		return this.successElement;
-	}
-}
-```
+Методы
+
+- orderError() - отображает сообщение об ошибке при некорректном заполнении полей заказа
+
+Особенности
+
+- Содержит два обязательных поля для ввода контактных данных
+- Имеет встроенный механизм отображения ошибок валидации
+- Использует шаблонный подход для инициализации элементов интерфейса
+
+Примечания
+
+- Все protected свойства предназначены для внутреннего использования
+- Класс автоматически находит элементы формы по заданным селекторам
+- Сообщение об ошибке отображается в элементе с классом form\_\_errors
+
+---
+
+#### Класс SuccessView представляет собой компонент для отображения успешной операции с указанием списанной суммы в синапсах.
+
+Свойства
+
+- successElement (protected) - корневой элемент интерфейса успеха
+- totalPriceElement (protected) - элемент для отображения суммы
+- \_totalPrice (protected) - общая сумма операции
+- successButton (protected) - кнопка действия после успешной операции
+- handleSuccess (protected) - обработчик нажатия кнопки
+
+Сеттеры/Геттеры
+
+- set totalPrice - устанавливает сумму операции
+- get totalPrice - получает сумму операции
+
+Методы
+
+- setHandleSuccess - устанавливает обработчик для кнопки
+- render - отображает интерфейс успеха
+
+Особенности
+
+- Использует шаблонный подход для инициализации элементов интерфейса
+- Автоматически отображает сумму в элементе интерфейса
+- Поддерживает установку обработчика для кнопки действия
+- Форматирует отображаемую сумму в виде “Списано X синапсов”
+
+---
 
 ### Модели
 
@@ -564,146 +345,77 @@ class SuccessView {
 2. `BasketModel` хранит в себе информацию о добавленные товарах. В модель можно добавлять товары из `CatalogModel` и удалять, после отправки заказа данные очищаются
 3. `OrderModel` - сюда добавляются товары из `BasketModel` на последнем этапе оформления заказа, и добавляются данные на этапе оформления заказа, после подтверждения заказа данные очищаются
 
-##### CatalogModel - класс используется для хранения в себе данных о продуктах, которые пришли с сервера
+##### Класс CatalogModel представляет собой модель каталога товаров, реализующую интерфейс ICatalogModel. Предназначен для управления коллекцией товаров и предоставления методов для работы с ними.
 
-```typescript
-class CatalogModel {
-	protected _items: IProduct[] = []; // список продуктов (товаров)
+Свойства
 
-	// в конструктор передаем брокер событий
-	constructor(protected events: IEvents) {}
+- \_items: IProduct[] - массив товаров
+- events: IEvents - система событий
 
-	// получить все продукты
-	getItems(): IProduct[] {
-		return this._items;
-	}
+Методы
 
-	// получить определенный продукт
-	getItem(id: string): IProduct {
-		return this._items.find((item) => item.id === id);
-	}
+- getItems() - возвращает массив всех товаров
+- getItem(id: string) - возвращает товар по указанному ID
+- getTotal() - возвращает общее количество товаров
+- set_Items(\_items: IProduct[]) - устанавливает новый массив товаров и вызывает событие items:changed
 
-	// получить количество продуктов
-	getTotal() {
-		return this._items.length;
-	}
+Особенности
 
-	// установить продукты (сохранить товары)
-	set_Items(_items: IProduct[]) {
-		this._items = _items;
-		this.events.emit('items:changed');
-	}
-}
-```
+- Использует систему событий для уведомления об изменении списка товаров
+- Предоставляет методы для получения как всей коллекции, так и отдельного товара
+- Автоматически подсчитывает общее количество товаров
+- Поддерживает обновление списка товаров с уведомлением подписчиков
 
-##### BasketModel - класс используется для хранения данных о товарах, которые выбрал пользователь (добавил в корзину)
+##### Класс BasketModel представляет собой модель корзины покупок, реализующую интерфейс IBasketModel. Предназначен для управления содержимым корзины и отслеживания общей стоимости товаров.
 
-```typescript
-class BasketModel {
-	// в конструктор передаем брокер событий
-	constructor(protected events: EventEmitter) {}
-	items: Map<string, BasketItem> = new Map(); // количество продуктов изначально пустой массив
-	totalPrice: number = 0; // цена всех продуктов изначально равна 0
+Свойства
 
-	// добавить товар
-	add(id: string, item: BasketItem): void {
-		if (!this.items.has(id)) {
-			this.items.set(id, item);
-			this.totalPrice += item.price;
-		}
-		this.events.emit('basket:changed');
-	}
+- items: - карта товаров в корзине
+- totalPrice - общая стоимость товаров
+- events - система событий
+  Методы
+- add - добавляет товар в корзину
+- remove - удаляет товар из корзины
+- getItems - возвращает массив товаров в корзине
+- clear- очищает корзину
+  Особенности
+- Использует Map для хранения товаров с уникальными ID
+- Автоматически обновляет общую стоимость при изменении корзины
+- Выпускает событие basket:changed при любом изменении корзины
+- Предоставляет методы для добавления, удаления и очистки корзины
 
-	//удалить товар
-	remove(id: string, item: BasketItem): void {
-		if (this.items.has(id)) {
-			this.items.delete(id);
-			this.totalPrice -= item.price;
-		}
-		this.events.emit('basket:changed');
-	}
+##### Класс OrderModel представляет собой модель заказа, которая хранит данные о способах оплаты, контактных данных пользователя, общей стоимости и содержимом заказа.
 
-	// получить все товары
-	getItems(): BasketItem[] {
-		return Array.from(this.items.values());
-	}
+Свойства
 
-	// очистить данные в корзине
-	clear() {
-		this.items = new Map();
-		this.totalPrice = 0;
-		this.events.emit('basket:changed');
-	}
-}
-```
+- _orderData - объект с данными заказа
+- events - система событий
 
-##### OrderModel - класс используется для хранения данных о товарах, которые выбрал пользователь и данных, которые он ввел при оформлении заказа
+Сеттеры
 
-```typescript
-class OrderModel {
-	// хранит всю информацию о заказа (данные в таком типе понадобятся для отправки на сервер)
-	protected _orderData: OrderType = {
-		payment: 'not_selected',
-		email: '',
-		phone: '',
-		address: '',
-		total: 0,
-		items: [],
-	};
+- payment - способ оплаты
+- email- email пользователя
+- phone- телефон пользователя
+- address- адрес доставки
+- items - список товаров
+- total - общая сумма заказа
 
-	// в конструктор передается брокер событий
-	constructor(protected events: IEvents) {}
+Геттер
 
-	// установить цену
-	set payment(value: paymentTypes) {
-		this._orderData.payment = value;
-	}
+- orderData - возвращает все данные заказа
 
-	// установить почту
-	set email(value: string) {
-		this._orderData.email = value;
-	}
+Методы
 
-	// установить телефон
-	set phone(value: string) {
-		this._orderData.phone = value;
-	}
+- clear() - очищает данные заказа и выпускает событие order:changed
 
-	// установить адрес
-	set address(value: string) {
-		this._orderData.address = value;
-	}
+Особенности
 
-	// установить товары
-	set items(values: string[]) {
-		this._orderData.items = values;
-	}
+- Использует систему событий для уведомления об изменении данных заказа
+- Предоставляет сеттеры для установки всех параметров заказа
+- Позволяет получить все данные заказа через геттер
+- Поддерживает полное очищение данных заказа
 
-	//установить итоговую цену
-	set total(value: number) {
-		this._orderData.total = value;
-	}
-
-	// получить данные о заказе
-	get orderData() {
-		return this._orderData;
-	}
-
-	// очистить данные о заказе
-	clear() {
-		this._orderData = {
-			payment: 'not_selected',
-			email: '',
-			phone: '',
-			address: '',
-			total: 0,
-			items: [],
-		};
-
-		this.events.emit('order:changed');
-	}
-}
-```
+---
 
 ### Презентер (Presenter)
 
@@ -712,142 +424,99 @@ class OrderModel {
 1.  При взаимодействии пользователя с интерфейсом, презентер реагирует на это и передает необходимые данные в модели (получение данных с сервера, передача данных с форм, передача данных из модели в модель)
 2.  При определенных событиях связанных с данными в моделя, презентер реагирует на это и вызывает изменения в интерфейсе (отрисовку элементов)
 
-```typescript
-class ShopPresenter {
-	protected cardTemplate: HTMLTemplateElement; // шаблон карточки с товаром
-	protected cardProduct: IProduct; // товар (продукт)
-	protected previewProduct: IProductPreview; // экземпляр класса
-	protected basketView: IBasketView; // экземпляр класса
-	protected basketButton: HTMLButtonElement; // кнопка "Корзина"
-	protected basketCounter: HTMLSpanElement; // счетчик товаров над корзиной
-	protected productPreviewTemplate: HTMLTemplateElement; // шаблон элемента отображения подробной информации продукта
-	protected basketTemplate: HTMLTemplateElement; // шаблон элемента корзины
-	protected basketItemView: IBasketItemView; // экземпляр класса
-	protected basketItemTemplate: HTMLTemplateElement; //шаблон элемента товара в козине
-	protected paymentTemplate: HTMLTemplateElement; // шаблон формы выбора оплаты
-	protected paymentView: IPaymentView; // экземпляр класса
-	protected contactsTemplate: HTMLTemplateElement; // шаблон формы для ввода данных пользователя
-	protected contactsView: IContactsView; // экземпляр класса
-	protected successTemplate: HTMLTemplateElement; // шаблон окна об успехе операции
-	protected successView: ISuccessView; // экземпляр класса
+Свойства
 
-  // в конструктор передаем модели, конструкторы классов и экземпляр класса модального окна
-	constructor(
-		protected catalogModel: CatalogModel,
-		protected basketModel: BasketModel,
-		protected orderModel: OrderModel,
-		protected viewProductConstructor: IProductConstructor,
-		protected viewPageContainer: ICatalogView,
-		protected basketConstructor: BasketViewConstructor,
-		protected productPreviewConstructor: ProductPreviewConstructor,
-		protected modal: IModal,
-		protected basketItemConstructor: BasketItemConstructor,
-		protected paymentViewConstructor: PaymentViewConstructor,
-		protected contactsViewConstructor: ContactsViewConstructor,
-		protected successViewConstructor: SuccessViewConstructor
-	) {
-		this.cardTemplate = document.querySelector(
-			'#card-catalog'
-		) as HTMLTemplateElement;
-		this.productPreviewTemplate = document.querySelector(
-			'#card-preview'
-		) as HTMLTemplateElement;
-		this.basketTemplate = document.querySelector(
-			'#basket'
-		) as HTMLTemplateElement;
-		this.basketItemTemplate = document.querySelector(
-			'#card-basket'
-		) as HTMLTemplateElement;
-		this.basketButton = document.querySelector(
-			'.header__basket'
-		) as HTMLButtonElement;
-		this.basketCounter = this.basketButton.querySelector(
-			'.header__basket-counter'
-		);
-		this.paymentTemplate = document.querySelector(
-			'#order'
-		) as HTMLTemplateElement;
-		this.contactsTemplate = document.querySelector(
-			'#contacts'
-		) as HTMLTemplateElement;
-		this.successTemplate = document.querySelector(
-			'#success'
-		) as HTMLTemplateElement;
-	}
+- cardTemplate - шаблон карточки с товаром
+- cardProduct - товар (продукт)
+- previewProduct - экземпляр класса
+- basketView - экземпляр класса
+- basketButton -кнопка "Корзина"
+- basketCounter - счетчик товаров над корзиной
+- productPreviewTemplate - шаблон элемента отображения подробной информации продукта
+- basketTemplate: HTMLTemplateEleme -шаблон элемента корзины
+- basketItemView - экземпляр класса
+- basketItemTemplate -шаблон элемента товара в козине
+- paymentTemplate - шаблон формы выбора оплаты
+- paymentView - экземпляр класса
+- contactsTemplate -шаблон формы для ввода данных пользователя
+- contactsView - экземпляр класса
+- successTemplate - шаблон окна об успехе операции
+- successView - экземпляр класса
 
-  // инициализация презентера с необходимыми данными
-	init() {
-		this.previewProduct = new this.productPreviewConstructor(
-			this.productPreviewTemplate
-		);
-		this.basketView = new this.basketConstructor(this.basketTemplate);
-		this.basketItemView = new this.basketItemConstructor(
-			this.basketItemTemplate
-		);
-		this.paymentView = new this.paymentViewConstructor(this.paymentTemplate);
-		this.contactsView = new this.contactsViewConstructor(this.contactsTemplate);
-		this.successView = new this.successViewConstructor(this.successTemplate);
-		this.basketButton.addEventListener(
-			'click',
-			this.handleOpenBasketView.bind(this)
-		);
-		this.basketCounter.textContent = '0';
-	}
+Конструктор принимает конструкторы классов и экземпляр класса модального окна
 
-  // слушатель события, срабатывающий при добавлении товара в корзину. При клике на кнопку Добавить в корзине, товар добавляется в BasketModel, при клике на Убрать из корзины - удаляется
-	handleBuyProduct(id: string, item: BasketItem) {
-    ...
-	}
+- catalogModel: CatalogModel,
+- basketModel: BasketModel,
+- orderModel: OrderModel,
+- viewProductConstructor: IProductConstructor,
+- viewPageContainer: ICatalogView,
+- basketConstructor: BasketViewConstructor,
+- productPreviewConstructor: ProductPreviewConstructor,
+- modal: IModal,
+- basketItemConstructor: BasketItemConstructor,
+- paymentViewConstructor: PaymentViewConstructor,
+- contactsViewConstructor: ContactsViewConstructor,
+- successViewConstructor: SuccessViewConstructor
 
-  // слушатель события, открытие модального окна
-	handleOpenPreviewModal(product: IProductView) {
-    ...
-	}
+Методы
 
-  // слушатель события, удаление товара из BasketModel
-	handleDeleteProduct(id: string, item: BasketItem) {
-    ...
-	}
+- handleBuyProduct - слушатель события, срабатывающий при добавлении товара в корзину. При клике на кнопку Добавить в корзине, товар добавляется в BasketModel, при клике на Убрать из корзины - удаляется
+- handleOpenPreviewModal - слушатель события, открытие модального окна
+- handleDeleteProduct - слушатель события, удаление товара из BasketModel
+- handleOpenBasketView - // слушатель события, передача данных из basketModel в интерфейс, открывается окно, которое видит пользователь, содержащее товары, хранящиеся в basketModel, и итоговую стоимость
+- handleOpenPayment - слушатель события, отображается окно с выбором оплаты, на кнопки и поля ввода навешиваются слушатели
+- handleMakeOnlineOption - слушатель на кнопку Онлайн в форме выбора оплата
+- handleMakeCashOption - слушатель на кнопку Картой в форме выбора оплата
+- handleSubmitOrder - слушатель на отправку данных с формы, данные с формы передаются в OrderModel, отображается форма с данными пользователи и на новую форму навешивается слушатель
+- handleSubmitContacts - слушатель на отправку данных с формы, данные с формы и список товаров из (BasketModel) передаются в OrderModel, отображается форма с данными пользователи, данные моделей очищаются
+- renderCatalogView - отрисовка продуктов на странице
+- renderBasketView - отрисовка товаров в корзине
 
-  // слушатель события, передача данных из basketModel в интерфейс, открывается окно, которое видит пользователь, содержащее товары, хранящиеся в basketModel, и итоговую стоимость
-	handleOpenBasketView() {
-    ...
-	}
+___
+### Абстрактный класс Form<T> представляет собой базовый класс для работы с формами, обеспечивающий функциональность обработки форм и их элементов.
 
-  // слушатель события, отображается окно с выбором оплаты, на кнопки и поля ввода навешиваются слушатели
-	handleOpenPayment() {
-		// надо навесить валидацию
-    ...
-	}
+Свойства
+- form: HTMLFormElement - элемент формы
+- handleSubmit: Function - обработчик отправки формы
+- submitButton: HTMLButtonElement - кнопка отправки формы
 
-  // слушатель на кнопку Онлайн в форме выбора оплата
-	handleMakeOnlineOption() {
-    ...
-	}
+Конструктор
+- constructor(formTemplate: HTMLTemplateElement) - инициализирует форму из шаблона
 
-  // слушатель на кнопку Картой в форме выбора оплата
-	handleMakeCashOption() {
-    ...
-	}
+Методы
+- setSubmitHandler(handleSubmit: Function) - устанавливает обработчик отправки формы
+- getInputData(input: HTMLInputElement) - получает значение указанного инпута
+- clearInputs() - очищает все инпуты формы
+- render(): HTMLFormElement - возвращает готовый элемент формы
 
-  // слушатель на отправку данных с формы, данные с формы передаются в OrderModel, отображается форма с данными пользователи и на новую форму навешивается слушатель
-	handleSubmitOrder() {
-    ...
-	}
+Особенности
+- Использует шаблонный подход для инициализации формы
+- Предотвращает стандартное поведение отправки формы
+- Позволяет динамически получать значения полей формы
+- Поддерживает очистку всех полей формы
+- Обеспечивает базовую функциональность для работы с формами
 
-  // слушатель на отправку данных с формы, данные с формы и список товаров из (BasketModel) передаются в OrderModel, отображается форма с данными пользователи, данные моделей очищаются
-	handleSubmitContacts() {
-    ...
-	}
+___
 
-  // отрисовка продуктов на странице
-	renderCatalogView() {
-    ...
-	}
+### Класс OrderAPI представляет собой реализацию API для работы с заказами, наследуя функциональность от базового класса Api.
 
-  // отрисовка товаров в корзине
-	renderBasketView() {
-    ...
-  }
-}
-```
+Наследование и интерфейсы
+- Наследует класс Api
+- Реализует интерфейс IOrderApi
+
+Конструктор
+- baseUrl: string - базовый URL для API
+- options: RequestInit - опции запроса (опционально)
+
+Методы
+- getProducts() - получает список продуктов, возвращает: Promise<ApiListResponse<IProduct>>
+- postOrder(data: OrderType) - отправляет заказ
+
+Параметры:
+- data: OrderType - данные заказа. Возвращает: Promise с результатом отправки
+
+Особенности
+- Использует базовый класс Api для обработки HTTP-запросов
+- Предоставляет методы для получения продуктов и отправки заказов
+- Использует типизацию через интерфейсы IProduct и OrderType
+- Возвращает промисы для асинхронной работы с данными

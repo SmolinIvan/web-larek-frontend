@@ -1,4 +1,3 @@
-import { Api, ApiListResponse } from './components/base/api';
 import { EventEmitter } from './components/base/events';
 import { BasketModel } from './components/models/BasketModel';
 import { CatalogModel } from './components/models/CatalogModel';

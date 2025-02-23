@@ -1,5 +1,4 @@
 import { IBasketView } from '../../types';
-import { Component } from '../base/component';
 
 export interface BasketViewConstructor {
 	new (basketViewTemplate: HTMLTemplateElement): IBasketView;
@@ -10,7 +9,6 @@ export class BasketView implements IBasketView {
 	protected priceElement: HTMLElement;
 	protected handleMakeOrder: Function;
 	protected _content: HTMLElement;
-	protected kek: HTMLElement;
 	makeOrderButton: HTMLButtonElement;
 
 	constructor(basketViewTemplate: HTMLTemplateElement) {
