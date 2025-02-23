@@ -1,12 +1,11 @@
 import { IProduct, IProductPreview } from '../../types';
 import { CDN_URL, classes } from '../../utils/constants';
-import { Component } from '../base/component';
 
 export interface ProductPreviewConstructor {
 	new (productPreviewTemplate: HTMLTemplateElement): IProductPreview;
 }
 
-export class ProductPreview extends Component<IProductPreview> {
+export class ProductPreview implements IProductPreview {
 	protected preview: HTMLElement;
 	protected buyButton: HTMLButtonElement;
 	protected handleBuyProduct: Function;
@@ -18,7 +17,6 @@ export class ProductPreview extends Component<IProductPreview> {
 	protected _data: IProduct;
 
 	constructor(productPreviewTemplate: HTMLTemplateElement) {
-		super(productPreviewTemplate)
 		this.preview = productPreviewTemplate.content
 			.querySelector('.card')
 			.cloneNode(true) as HTMLElement;
@@ -56,14 +54,21 @@ export class ProductPreview extends Component<IProductPreview> {
 		this.handleBuyProduct = handleBuyProduct;
 	}
 
+	setDisabled(element: HTMLElement, state: boolean) {
+		if (element) {
+			if (state) element.setAttribute('disabled', 'disabled');
+			else element.removeAttribute('disabled');
+		}
+	}
+
 	render() {
 		this.categoryElement.textContent = this.data.category;
 		this.categoryColor = this.data.category;
 		this.priceElement.textContent = `${this.data.price} синапсов`;
 		if (typeof this.data.price != 'number') {
-			this.setDisabled(this.buyButton, true)
+			this.setDisabled(this.buyButton, true);
 		} else {
-			this.setDisabled(this.buyButton, false)
+			this.setDisabled(this.buyButton, false);
 		}
 		this.titleElement.textContent = this.data.title;
 		this.imageElement.src = `${CDN_URL}/` + this.data.image;

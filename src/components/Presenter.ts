@@ -11,7 +11,8 @@ import {
 	IContactsView,
 	ISuccessView,
 } from '../types';
-import { checkInputValidity, clearValidation, enableValidation } from './base/Validation';
+
+import { clearValidation, enableValidation } from './base/Validation';
 import { BasketModel } from './models/BasketModel';
 import { CatalogModel } from './models/CatalogModel';
 import { OrderModel } from './models/OrderModel';
@@ -19,9 +20,10 @@ import { BasketItemConstructor } from './view/BasketItemView';
 import { BasketViewConstructor } from './view/BasketView';
 import { ContactsViewConstructor } from './view/ContactsView';
 import { PaymentViewConstructor } from './view/PaymentView';
-import { ProductPreviewConstructor } from './view/ProdactPreview';
+import { ProductPreviewConstructor } from './view/ProductPreview';
 import { IProductConstructor } from './view/ProductView';
 import { SuccessViewConstructor } from './view/SuccessView';
+import { OrderAPI } from './API/OrderAPI';
 
 export class ShopPresenter {
 	protected cardTemplate: HTMLTemplateElement;
@@ -53,7 +55,8 @@ export class ShopPresenter {
 		protected basketItemConstructor: BasketItemConstructor,
 		protected paymentViewConstructor: PaymentViewConstructor,
 		protected contactsViewConstructor: ContactsViewConstructor,
-		protected successViewConstructor: SuccessViewConstructor
+		protected successViewConstructor: SuccessViewConstructor,
+		protected api: OrderAPI
 	) {
 		this.cardTemplate = document.querySelector(
 			'#card-catalog'
@@ -92,8 +95,15 @@ export class ShopPresenter {
 		this.paymentView = new this.paymentViewConstructor(this.paymentTemplate);
 		this.contactsView = new this.contactsViewConstructor(this.contactsTemplate);
 		this.successView = new this.successViewConstructor(this.successTemplate);
-		this.viewPageContainer.setBasketButtonHandler(this.handleOpenBasketView.bind(this))
-		
+		this.viewPageContainer.setBasketButtonHandler(
+			this.handleOpenBasketView.bind(this)
+		);
+		this.api
+			.getProducts()
+			.then((incomingData) => {
+				this.catalogModel.set_Items(incomingData.items);
+			})
+			.catch((err) => console.log(err));
 	}
 
 	handleBuyProduct(id: string, item: BasketItem) {
@@ -114,7 +124,6 @@ export class ShopPresenter {
 			id: productPre.id,
 		};
 
-		this.viewPageContainer.locked = true
 		this.previewProduct.data = product.data;
 		this.previewProduct.setHandler(() =>
 			this.handleBuyProduct(product.data.id, basketItemData)
@@ -144,63 +153,93 @@ export class ShopPresenter {
 	}
 
 	handleOpenPayment() {
-		// надо навесить валидацию
-		this.paymentView.setCardOptionHandler(this.handleMakeOnlineOption.bind(this));
+		this.paymentView.setCardOptionHandler(
+			this.handleMakeOnlineOption.bind(this)
+		);
 		this.paymentView.setCashOptionHandler(this.handleMakeCashOption.bind(this));
-
-		// доделать
 		clearValidation(this.paymentView.render(), '.form__input');
-		enableValidation(this.paymentView.render(), '.form__input', this.paymentView.submitButton)
-
-		
+		enableValidation(
+			this.paymentView.render(),
+			'.form__input',
+			this.paymentView.submitButton
+		);
 		this.paymentView.setSubmitHandler(this.handleSubmitOrder.bind(this));
-		console.log(this.orderModel.orderData.payment)
 		this.modal.content = this.paymentView.render();
-		console.log(this.orderModel)
 	}
 
-	// validateForm = enableValidation
-
 	handleMakeOnlineOption() {
-		this.paymentView.offlineButton.classList.remove('button_alt-active')
-		this.paymentView.offlineButton.classList.add('button_alt')
-		this.paymentView.onlineButton.classList.remove('button_alt')
-		this.paymentView.onlineButton.classList.add('button_alt-active')
+		this.paymentView.offlineButton.classList.remove('button_alt-active');
+		this.paymentView.offlineButton.classList.add('button_alt');
+		this.paymentView.onlineButton.classList.remove('button_alt');
+		this.paymentView.onlineButton.classList.add('button_alt-active');
 		this.orderModel.orderData.payment = 'online';
 	}
 
 	handleMakeCashOption() {
-		this.paymentView.onlineButton.classList.remove('button_alt-active')
-		this.paymentView.onlineButton.classList.add('button_alt')
-		this.paymentView.offlineButton.classList.remove('button_alt')
-		this.paymentView.offlineButton.classList.add('button_alt-active')
+		this.paymentView.onlineButton.classList.remove('button_alt-active');
+		this.paymentView.onlineButton.classList.add('button_alt');
+		this.paymentView.offlineButton.classList.remove('button_alt');
+		this.paymentView.offlineButton.classList.add('button_alt-active');
 		this.orderModel.payment = 'cash';
 	}
 
 	handleSubmitOrder() {
 		if (this.orderModel.orderData.payment === 'not_selected') {
-			this.paymentView.render().querySelector('.form__errors').textContent = 'Не выбран способ оплаты'
+			this.paymentView.render().querySelector('.form__errors').textContent =
+				'Не выбран способ оплаты';
 		} else {
-			this.orderModel.address = this.paymentView.getInputData(this.paymentView.addressInput);
-			this.contactsView.setSubmitContacts(this.handleSubmitContacts.bind(this));
+			this.orderModel.address = this.paymentView.getInputData(
+				this.paymentView.addressInput
+			);
+			this.contactsView.setSubmitHandler(this.handleSubmitContacts.bind(this));
 			this.modal.content = this.contactsView.render();
 			clearValidation(this.contactsView.render(), '.form__input');
-			enableValidation(this.contactsView.render(), '.form__input', this.contactsView.submitButton)
-			console.log(this.paymentView.getInputData(this.paymentView.addressInput))
+			enableValidation(
+				this.contactsView.render(),
+				'.form__input',
+				this.contactsView.submitButton
+			);
 		}
 	}
 
 	handleSubmitContacts() {
-		this.orderModel.phone = this.contactsView.getPhone();
-		this.orderModel.email = this.contactsView.getEmail();
+		this.orderModel.phone = this.contactsView.getInputData(
+			this.contactsView.phoneInput
+		);
+		this.orderModel.email = this.contactsView.getInputData(
+			this.contactsView.emailInput
+		);
 		this.orderModel.total = this.basketModel.totalPrice;
 		this.orderModel.items = Array.from(this.basketModel.items.keys());
-		console.log(this.orderModel.orderData, this.orderModel.orderData.total);
-		this.successView.totalPrice = this.orderModel.orderData.total;
-		this.orderModel.clear();
-		this.basketModel.clear();
-		this.modal.content = this.successView.render();
-	
+		if (this.checkOrderData()) {
+			this.successView.totalPrice = this.orderModel.orderData.total;
+			this.api
+				.postOrder(this.orderModel.orderData)
+				.catch((err) => console.log(err));
+			this.orderModel.clear();
+			this.basketModel.clear();
+			this.paymentView.clearInputs();
+			this.paymentView.uncheckPaymentMethod();
+			this.contactsView.clearInputs();
+			this.successView.setHandleSuccess(this.handleCloseSuccess.bind(this));
+			this.modal.content = this.successView.render();
+		} else {
+			this.contactsView.orderError();
+		}
+	}
+
+	handleCloseSuccess() {
+		this.modal.close();
+	}
+
+	checkOrderData(): boolean {
+		const checkNulls = Object.values(this.orderModel.orderData).some(
+			(value) => value === null
+		);
+		const checkEmptyItems =
+			JSON.stringify(this.orderModel.orderData.items) === JSON.stringify([]);
+		const checkPayment = this.orderModel.orderData.payment === 'not_selected';
+		return !(checkNulls || checkEmptyItems || checkPayment);
 	}
 
 	renderCatalogView() {
@@ -211,9 +250,7 @@ export class ShopPresenter {
 			const itemElement = productItem.render();
 			return itemElement;
 		});
-
 		this.viewPageContainer.products = productList;
-		// this.viewPageContainer.setProductCounter((this.basketModel.getItems()).length)
 	}
 
 	renderBasketView() {
@@ -232,13 +269,12 @@ export class ShopPresenter {
 			console.log(this.basketModel);
 			return itemElement;
 		});
+
 		this.basketView.content = basketList;
-		
-		this.viewPageContainer.setProductCounter(indexCount)
-
-		// вернуть
-		// this.basketView.setDisabled(this.basketView.makeOrderButton, indexCount === 0)
-
-		// this.basketCounter.textContent = `${this.basketModel.items.size}`;
+		this.viewPageContainer.setProductCounter(indexCount);
+		this.basketView.setDisabled(
+			this.basketView.makeOrderButton,
+			indexCount === 0
+		);
 	}
 }

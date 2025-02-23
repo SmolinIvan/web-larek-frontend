@@ -2,7 +2,7 @@ import { ICatalogView } from '../../types';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/component';
 
-export class PageView extends Component<ICatalogView>  {
+export class PageView extends Component<ICatalogView> {
 	protected productsContainer: HTMLElement;
 	basketButton: HTMLButtonElement;
 	protected mainPage: HTMLElement;
@@ -12,12 +12,13 @@ export class PageView extends Component<ICatalogView>  {
 	protected _wrapper: HTMLElement;
 
 	constructor() {
-		super(document.querySelector('.page'))
+		super(document.querySelector('.page'));
 		this.productsContainer = this.container.querySelector('.gallery');
 		this.basketButton = this.container.querySelector('.header__basket');
-		this.basketCounter = this.container.querySelector('.header__basket-counter')
+		this.basketCounter = this.container.querySelector(
+			'.header__basket-counter'
+		);
 		this._wrapper = ensureElement<HTMLElement>('.page__wrapper');
-
 	}
 
 	set products(items: HTMLElement[]) {
@@ -25,7 +26,7 @@ export class PageView extends Component<ICatalogView>  {
 	}
 
 	setProductCounter(productsCount: number) {
-		this.basketCounter.textContent = `${productsCount}`
+		this.basketCounter.textContent = `${productsCount}`;
 	}
 
 	setBasketButtonHandler(handleBasketOpen: Function) {
@@ -37,32 +38,13 @@ export class PageView extends Component<ICatalogView>  {
 
 	set locked(value: boolean) {
 		if (value) {
-				this._wrapper.classList.remove('page__wrapper');
-				this._wrapper.classList.add('page__wrapper_locked');
+			this.toggleClass(this._wrapper, 'page__wrapper_locked');
 		} else {
-				this._wrapper.classList.remove('page__wrapper_locked');
-				this._wrapper.classList.add('page__wrapper');
+			this.toggleClass(this._wrapper, 'page__wrapper_locked');
 		}
-}
-
-	// lockPage() {
-	// 	// Сохраняем текущую позицию прокрутки
-	// 	const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-		
-	// 	// Добавляем класс
-		
-		
-	// 	// Восстанавливаем позицию прокрутки
-	// 	console.log(scrollPosition)
-	// 	window.scrollTo(0, scrollPosition);
-	// 	this._wrapper.classList.add('page_wrapper_locked');
-	// }
-
- 	// unlockPage() {
-	// 	this._wrapper.classList.remove('page__wrapper_locked');
-	// }
+	}
 
 	render() {
-		return this.productsContainer;
+		return this.container;
 	}
 }

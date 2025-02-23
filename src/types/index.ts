@@ -1,4 +1,4 @@
-import { Func } from "mocha";
+import { ApiListResponse } from '../components/base/api';
 
 export interface IProduct {
 	category: string;
@@ -12,8 +12,6 @@ export interface IProduct {
 export interface ICatalogView {
 	products: HTMLElement[];
 	locked: boolean;
-	// lockPage: Function;
-	// unlockPage: Function;
 	basketButton: HTMLButtonElement;
 	setProductCounter(productsCount: number): void;
 	setDisabled(element: HTMLElement, state: boolean): void;
@@ -67,26 +65,30 @@ export interface IPaymentView {
 	offlineButton: HTMLButtonElement;
 	submitButton: HTMLButtonElement;
 	addressInput: HTMLInputElement;
-	// getAddress(): string; // убрать
-	getInputData(input: HTMLInputElement): string
+	getInputData(input: HTMLInputElement): string;
 	setSubmitHandler(handleSubmit: Function): void;
 	setCardOptionHandler(handleOnlineMethod: Function): void;
 	setCashOptionHandler(handleOfflineMethod: Function): void;
-	// setSubmitOrderHandler(handleSubmitAddress: Function): void;
 	setValidationHandle(handleValidate: Function): void;
+	uncheckPaymentMethod(): void;
+	clearInputs(): void;
 	render(): HTMLFormElement;
 }
 
 export interface IContactsView {
+	emailInput: HTMLInputElement;
+	phoneInput: HTMLInputElement;
 	submitButton: HTMLButtonElement;
-	getEmail(): string;
-	getPhone(): string;
-	setSubmitContacts(handleSubmitContacts: Function): void;
+	orderError(): void;
+	getInputData(input: HTMLInputElement): string;
+	setSubmitHandler(handleSubmit: Function): void;
+	clearInputs(): void;
 	render(): HTMLFormElement;
 }
 
 export interface ISuccessView {
 	totalPrice: number;
+	setHandleSuccess(handleSuccess: Function): void;
 	render(): HTMLElement;
 }
 
@@ -110,13 +112,18 @@ export interface IOrderModel {
 	clear(): void;
 }
 
+export interface IOrderApi {
+	getProducts(): Promise<ApiListResponse<IProduct>>;
+	postOrder(data: OrderType): any;
+}
+
 export type paymentTypes = 'not_selected' | 'cash' | 'online';
 
 export type OrderType = {
 	payment: paymentTypes;
-	email: string;
-	phone: string;
-	address: string;
-	total: number;
+	email: string | null;
+	phone: string | null;
+	address: string | null;
+	total: number | null;
 	items: string[];
 };

@@ -8,6 +8,8 @@ export class SuccessView implements ISuccessView {
 	protected successElement: HTMLElement;
 	protected totalPriceElement: HTMLSpanElement;
 	protected _totalPrice: number;
+	protected successButton: HTMLButtonElement;
+	protected handleSuccess: Function;
 
 	constructor(successTemplate: HTMLTemplateElement) {
 		this.successElement = successTemplate.content
@@ -16,13 +18,7 @@ export class SuccessView implements ISuccessView {
 		this.totalPriceElement = this.successElement.querySelector(
 			'.order-success__description'
 		);
-		this.successElement
-			.querySelector('.button')
-			.addEventListener('click', (evt) => {
-				document
-					.querySelector('#modal-container')
-					.classList.remove('modal_active');
-			});
+		this.successButton = this.successElement.querySelector('.button');
 	}
 
 	set totalPrice(value: number) {
@@ -31,6 +27,13 @@ export class SuccessView implements ISuccessView {
 
 	get totalPrice() {
 		return this._totalPrice;
+	}
+
+	setHandleSuccess(handleSuccess: Function) {
+		this.handleSuccess = handleSuccess;
+		this.successButton.addEventListener('click', (evt) => {
+			this.handleSuccess(this);
+		});
 	}
 
 	render() {

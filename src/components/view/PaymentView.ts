@@ -14,15 +14,13 @@ export class PaymentView extends Form<IPaymentView> {
 	protected handleOnlineMethod: Function;
 	protected handleOfflineMethod: Function;
 	protected handleSubmitAddress: Function;
-	protected handleValidate:Function;
+	protected handleValidate: Function;
 
 	constructor(orderTemplate: HTMLTemplateElement) {
-		super(orderTemplate)
+		super(orderTemplate);
 		this.onlineButton = this.form.querySelector('button[name="card"]');
 		this.offlineButton = this.form.querySelector('button[name="cash"]');
-		this.addressInput = this.form.querySelector(
-			'input[name="address"]'
-		);
+		this.addressInput = this.form.querySelector('input[name="address"]');
 	}
 
 	setCardOptionHandler(handleOnlineMethod: Function) {
@@ -39,13 +37,11 @@ export class PaymentView extends Form<IPaymentView> {
 		});
 	}
 
-	// setSubmitOrderHandler(handleSubmitAddress: Function) {
-	// 	this.handleSubmitAddress = handleSubmitAddress;
-	// 	this.form.addEventListener('submit', (evt) => {
-	// 		evt.preventDefault();
-	// 		this.handleSubmitAddress(this);
-	// 	});
-	// }
+	uncheckPaymentMethod() {
+		const checkedButton = this.form.querySelector('.button_alt-active');
+		checkedButton.classList.remove('button_alt-active');
+		checkedButton.classList.add('button_alt');
+	}
 
 	setValidationHandle(handleValidate: Function) {
 		this.handleValidate = handleValidate;
@@ -53,15 +49,4 @@ export class PaymentView extends Form<IPaymentView> {
 			this.handleSubmitAddress(this);
 		});
 	}
-
-	// getAddress() {
-	// 	return this.addressInput.value;
-	// }
-
-	// render(): HTMLFormElement {
-	// 	const button = this.form.querySelector(
-	// 		'.order__button'
-	// 	) as HTMLButtonElement;
-	// 	return this.form;
-	// }
 }

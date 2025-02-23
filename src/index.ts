@@ -7,18 +7,17 @@ import { BasketItemView } from './components/view/BasketItemView';
 import { BasketView } from './components/view/BasketView';
 import { ModalView } from './components/view/ModalView';
 import { PageView } from './components/view/Page';
-import { ProductPreview } from './components/view/ProdactPreview';
+import { ProductPreview } from './components/view/ProductPreview';
 import { ProductView } from './components/view/ProductView';
 import './scss/styles.scss';
-import { IProduct } from './types';
 import { API_URL } from './utils/constants';
 import { PaymentView } from './components/view/PaymentView';
 import { OrderModel } from './components/models/OrderModel';
 import { ContactsView } from './components/view/ContactsView';
 import { SuccessView } from './components/view/SuccessView';
+import { OrderAPI } from './components/API/OrderAPI';
 
-const api = new Api(API_URL);
-
+const orderApi = new OrderAPI(API_URL);
 const events = new EventEmitter();
 const catalogModel = new CatalogModel(events);
 const basketModel = new BasketModel(events);
@@ -28,13 +27,6 @@ const modalTemplate = document.querySelector('#modal-container') as HTMLElement;
 const modal = new ModalView(modalTemplate, events);
 
 const page = new PageView();
-
-api
-	.get('/product')
-	.then((data: ApiListResponse<IProduct>) => {
-		catalogModel.set_Items(data.items);
-	})
-	.catch((err) => console.log(err));
 
 const presenter = new ShopPresenter(
 	catalogModel,
@@ -48,11 +40,11 @@ const presenter = new ShopPresenter(
 	BasketItemView,
 	PaymentView,
 	ContactsView,
-	SuccessView
+	SuccessView,
+	orderApi
 );
 
 presenter.init();
-
 presenter.renderBasketView();
 
 events.on('items:changed', () => {
@@ -67,12 +59,10 @@ events.on('order:changed', () => {
 	presenter.renderBasketView();
 });
 
-events.on('modal:open',() => {
+events.on('modal:open', () => {
 	page.locked = true;
-		// page.lockPage();
 });
 
-events.on('modal:close',() => {
+events.on('modal:close', () => {
 	page.locked = false;
-	// page.unlockPage();
 });

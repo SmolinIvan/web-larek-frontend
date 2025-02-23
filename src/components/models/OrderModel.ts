@@ -4,9 +4,9 @@ import { IEvents } from '../base/events';
 export class OrderModel {
 	protected _orderData: OrderType = {
 		payment: 'not_selected',
-		email: '',
-		phone: '',
-		address: '',
+		email: null,
+		phone: null,
+		address: null,
 		total: 0,
 		items: [],
 	};
@@ -44,9 +44,9 @@ export class OrderModel {
 	clear() {
 		this._orderData = {
 			payment: 'not_selected',
-			email: '',
-			phone: '',
-			address: '',
+			email: null,
+			phone: null,
+			address: null,
 			total: 0,
 			items: [],
 		};

@@ -1,12 +1,11 @@
 import { IProduct, IProductView } from '../../types';
 import { CDN_URL, classes } from '../../utils/constants';
-import { Component } from '../base/component';
 
 export interface IProductConstructor {
 	new (template: HTMLTemplateElement): IProductView;
 }
 
-export class ProductView extends Component<IProductView> {
+export class ProductView implements IProductView {
 	protected itemElement: HTMLElement;
 	protected _data: IProduct;
 	protected itemTitle: HTMLElement;
@@ -18,7 +17,6 @@ export class ProductView extends Component<IProductView> {
 	protected id: string;
 
 	constructor(template: HTMLTemplateElement) {
-		super(template)
 		this.itemElement = template.content
 			.querySelector('.gallery__item')
 			.cloneNode(true) as HTMLElement;
