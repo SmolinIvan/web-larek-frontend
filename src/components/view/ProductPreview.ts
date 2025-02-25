@@ -71,6 +71,7 @@ export class ProductPreview implements IProductPreview {
 			this.setDisabled(this.buyButton, false);
 		}
 		this.titleElement.textContent = this.data.title;
+		this.descriptionElement.textContent = this.data.description
 		this.imageElement.src = `${CDN_URL}/` + this.data.image;
 		return this.preview;
 	}
